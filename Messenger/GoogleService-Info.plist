@@ -30,5 +30,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:23186222847:ios:0ec84e9256a6879e9d26ca</string>
+	<key>DATABASE_URL</key>
+	<string>https://messenger-5b669-default-rtdb.europe-west1.firebasedatabase.app</string>
 </dict>
 </plist>
