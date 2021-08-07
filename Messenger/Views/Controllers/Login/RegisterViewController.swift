@@ -134,8 +134,8 @@ class RegisterViewController: UIViewController {
         )
         
         registerButton.addTarget(self,
-                              action: #selector(registerButtonTapped),
-                              for: .touchUpInside)
+                                 action: #selector(registerButtonTapped),
+                                 for: .touchUpInside)
         emailField.delegate = self
         passwordField.delegate = self
         
@@ -332,7 +332,7 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         picker.dismiss(animated: true, completion: nil)
         
         guard let selectedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else {
-                return
+            return
         }
         self.imageView.image = selectedImage
     }
