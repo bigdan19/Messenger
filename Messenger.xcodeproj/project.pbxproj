@@ -64,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				65A5F799267FF44C00988558 /* Messenger */,
+				65A5F7A8267FF44C00988558 /* Info.plist */,
 				65A5F798267FF44C00988558 /* Products */,
 				742B87166CF114F0FF8979B9 /* Pods */,
 				CF210C657ED5CF378188DF4D /* Frameworks */,
@@ -86,8 +87,6 @@
 				65A5F7B1267FF64B00988558 /* ViewModels */,
 				65A5F7B0267FF64500988558 /* Models */,
 				65A5F7AF267FF64000988558 /* Views */,
-				65A5F7AE267FF63600988558 /* Controllers */,
-				65A5F7A8267FF44C00988558 /* Info.plist */,
 			);
 			path = Messenger;
 			sourceTree = "<group>";
@@ -110,6 +109,7 @@
 			children = (
 				65A5F7B3267FF67200988558 /* Storyboards */,
 				65A5F7A3267FF44C00988558 /* Assets.xcassets */,
+				65A5F7AE267FF63600988558 /* Controllers */,
 			);
 			path = Views;
 			sourceTree = "<group>";
