@@ -8,8 +8,11 @@
 import UIKit
 import FirebaseAuth
 import FBSDKLoginKit
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
+    
+    let signInConfig = GIDConfiguration.init(clientID: "23186222847-isu5cihi8bqrelffjolmkogpkjv6vj0v.apps.googleusercontent.com")
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -82,6 +85,12 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    private let googleLoginButton: GIDSignInButton = {
+        let button = GIDSignInButton()
+        button.style = .standard
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Log In"
@@ -97,6 +106,10 @@ class LoginViewController: UIViewController {
         loginButton.addTarget(self,
                               action: #selector(loginButtonTapped),
                               for: .touchUpInside)
+        googleLoginButton.addTarget(self,
+                              action: #selector(signIn),
+                              for: .touchUpInside)
+
         emailField.delegate = self
         passwordField.delegate = self
         facebookLoginButton.delegate = self
@@ -109,6 +122,7 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(passwordField)
         scrollView.addSubview(loginButton)
         scrollView.addSubview(facebookLoginButton)
+        scrollView.addSubview(googleLoginButton)
         
         
     }
@@ -148,6 +162,51 @@ class LoginViewController: UIViewController {
             height: 50
         )
         facebookLoginButton.frame.origin.y = loginButton.bottom+20
+        
+        googleLoginButton.frame = CGRect(
+            x: 30,
+            y: facebookLoginButton.bottom+10,
+            width: scrollView.width-60,
+            height: 50
+        )
+    }
+    
+    @objc private func signIn(sender: Any) {
+        GIDSignIn.sharedInstance.signIn(with: signInConfig, presenting: self) { user, error in
+            guard error == nil else { return }
+            guard let user = user else { return }
+            
+            let emailAddress = user.profile?.email
+            guard let email = emailAddress else {
+                print("not able to get email after login")
+                return
+            }
+            
+            let fullName = user.profile?.name.components(separatedBy: " ")
+            guard let names = fullName, names.count == 2 else {
+                return
+            }
+            let firstName = names[0]
+            let secondName = names[1]
+            
+            print("\(email)\(firstName)\(secondName)")
+            
+            
+            DatabaseManager.shared.userExists(with: email) { exists in
+                if !exists {
+                    DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName, lastName: secondName, emailAdress: email))
+                }
+            }
+            
+            
+            
+            
+            // User is succesfully logged in google sign in , database record is created
+            // TODO: need to handle google token , login to firebase using google credentials
+            //
+            
+            print("google signed in")
+        }
     }
     
     @objc private func loginButtonTapped() {
