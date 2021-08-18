@@ -7,12 +7,11 @@
 
 import UIKit
 import FirebaseAuth
+import Firebase
 import FBSDKLoginKit
 import GoogleSignIn
 
 class LoginViewController: UIViewController {
-    
-    let signInConfig = GIDConfiguration.init(clientID: "23186222847-isu5cihi8bqrelffjolmkogpkjv6vj0v.apps.googleusercontent.com")
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -87,7 +86,7 @@ class LoginViewController: UIViewController {
     
     private let googleLoginButton: GIDSignInButton = {
         let button = GIDSignInButton()
-        button.style = .standard
+        button.style = .wide
         return button
     }()
     
@@ -161,7 +160,7 @@ class LoginViewController: UIViewController {
             width: scrollView.width-60,
             height: 50
         )
-        facebookLoginButton.frame.origin.y = loginButton.bottom+20
+        facebookLoginButton.frame.origin.y = loginButton.bottom+60
         
         googleLoginButton.frame = CGRect(
             x: 30,
@@ -172,26 +171,63 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func signIn(sender: Any) {
-        GIDSignIn.sharedInstance.signIn(with: signInConfig, presenting: self) { user, error in
-            guard error == nil else { return }
-            guard let user = user else { return }
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            return
+        }
+        
+        let config = GIDConfiguration(clientID: clientID)
+        
+        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
             
-            let emailAddress = user.profile?.email
-            guard let email = emailAddress else {
-                print("not able to get email after login")
+            if let error = error {
+                print("error occured \(error)")
                 return
             }
             
-            let fullName = user.profile?.name.components(separatedBy: " ")
+            guard let autentication = user?.authentication, let idToken = autentication.idToken else {
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: autentication.accessToken)
+            
+            FirebaseAuth.Auth.auth().signIn(with: credential, completion: { [weak self] authResult, error in
+                guard let strongSelf = self else {
+                    return
+                }
+                guard authResult != nil, error == nil else {
+                    if let error = error {
+                        print("Google sign in failed. error - \(error)")
+                    }
+                    
+                    return
+                }
+                print("Successfully logged user in using google")
+                strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            })
+            
+            
+            
+            //            guard let authentication = user.authentication, let idToken = authentication.idToken else {
+//                return
+//                print("error getting user token or autentication")
+//            }
+            
+            
+            
+            let emailAddress = user?.profile?.email
+            guard let email = emailAddress else {
+                print("not able to get email after google login")
+                return
+            }
+
+            let fullName = user?.profile?.name.components(separatedBy: " ")
             guard let names = fullName, names.count == 2 else {
                 return
             }
             let firstName = names[0]
             let secondName = names[1]
-            
-            print("\(email)\(firstName)\(secondName)")
-            
-            
+
+
             DatabaseManager.shared.userExists(with: email) { exists in
                 if !exists {
                     DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName, lastName: secondName, emailAdress: email))
