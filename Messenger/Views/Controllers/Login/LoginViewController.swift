@@ -10,8 +10,11 @@ import FirebaseAuth
 import Firebase
 import FBSDKLoginKit
 import GoogleSignIn
+import JGProgressHUD
 
 class LoginViewController: UIViewController {
+    
+    private let spinner = JGProgressHUD(style: .dark)
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -204,15 +207,7 @@ class LoginViewController: UIViewController {
                 print("Successfully logged user in using google")
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             })
-            
-            
-            
-            //            guard let authentication = user.authentication, let idToken = authentication.idToken else {
-//                return
-//                print("error getting user token or autentication")
-//            }
-            
-            
+        
             
             let emailAddress = user?.profile?.email
             guard let email = emailAddress else {
@@ -238,10 +233,6 @@ class LoginViewController: UIViewController {
             
             
             // User is succesfully logged in google sign in , database record is created
-            // TODO: need to handle google token , login to firebase using google credentials
-            //
-            
-            print("google signed in")
         }
     }
     
@@ -254,6 +245,8 @@ class LoginViewController: UIViewController {
             return
         }
         
+        spinner.show(in: view)
+        
         // Firebase Log In
         
         FirebaseAuth.Auth.auth().signIn(
@@ -263,6 +256,11 @@ class LoginViewController: UIViewController {
                 guard let strongSelf = self else {
                     return
                 }
+                
+                DispatchQueue.main.async {
+                    strongSelf.spinner.dismiss()
+                }
+                
                 guard let result = AuthResult, error == nil else {
                     print("Failed to log in user")
                     return
