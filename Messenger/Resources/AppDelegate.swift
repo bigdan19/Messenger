@@ -3,7 +3,7 @@
 //  Messenger
 //
 //  Created by Daniel on 20/06/2021.
-//
+//  Pod files are not included, they need to be installed
 
 import UIKit
 import Firebase
