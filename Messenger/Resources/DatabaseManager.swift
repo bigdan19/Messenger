@@ -29,15 +29,40 @@ extension DatabaseManager {
         var safeEmail = email.replacingOccurrences(of: ".", with: "-")
         safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
         
-        
-        database.child(safeEmail).observeSingleEvent(of: .value, with: { snapshot in
-            guard snapshot.value as? String != nil else {
+        database.child(safeEmail).observeSingleEvent(of: .value) { snapshot in
+            guard snapshot.hasChildren() else {
                 completion(false)
                 return
             }
             completion(true)
-        })
+        }
     }
+            
+//            if DataSnapshot.hasChildren() {
+//                completion(true)
+//            } else
+//            {
+//                completion(false)
+//                return
+//            }
+//        }
+//        database.child(safeEmail).observeSingleEvent(of: .value) { snapshot in
+//            guard snapshot.value != nil else {
+//                completion(false)
+//                return
+//            }
+//            completion(true)
+//        }
+
+        // TEMPORARY SOLUTION ( Issue with funcion falling throuth ) and returning false
+        
+//        database.child(safeEmail).observeSingleEvent(of: .value, with: { snapshot in
+//            guard snapshot.value as? String != nil else {
+//                completion(false)
+//                return
+//            }
+//            completion(true)
+//        })
     
     
     public func getAllUsers(completion: @escaping (Result<[[String: String]], Error>) -> Void) {
@@ -79,7 +104,6 @@ extension DatabaseManager {
                     
                     self.database.child("users").setValue(usersCollection) { error, _ in
                         guard error == nil else {
-                            completion(false)
                             return
                         }
                         completion(true)
